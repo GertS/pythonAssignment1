@@ -31,7 +31,6 @@ layername = "deuxPoint"
 
 ## Create shape file
 ds = drv.CreateDataSource(fn)
-##print ds.GetRefCount()
 
 # Set spatial reference
 spatialReference = osr.SpatialReference()
@@ -41,8 +40,8 @@ spatialReference.ImportFromProj4('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_de
 layer=ds.CreateLayer(layername, spatialReference, ogr.wkbPoint)
 layerDefinition = layer.GetLayerDefn()
 
-# Make a coordinate list
-coordinates = [[51.987754,5.665803,  "PC_room"],[51.965966,5.650683, "Home_room"]]
+# Create coordinate list, can be as long as you want
+coordinates = [[51.987754,5.665803,"PC_room"],[51.965966,5.650683,"Home_room"]]
 
 # For loop to go through the points within the coordinate list
 for coordinate in coordinates:
@@ -51,9 +50,13 @@ for coordinate in coordinates:
     feature = ogr.Feature(layerDefinition)
     feature.SetGeometry(point)
     layer.CreateFeature(feature)
+    # Generate kml file
+    f = open("data/"+coordinate[2]+".kml", "w+")
+    f.write("<Placemark>" + point.ExportToKML() + "</Placemark>")
+    f.close()
 
 print "The extent:"
 print layer.GetExtent()
 
-# Saving the object by destroying it
+# Saving the object by destroying the driver
 ds.Destroy()
